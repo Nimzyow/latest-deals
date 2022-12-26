@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+    deals-app
+
+    Sample SAM Template for deals-app
+
+Parameters:
+    DeploymentAccount:
+        Description: Deployment account
+        Default: sandbox
+        Type: String
+        AllowedValues:
+            - sandbox
+            - staging
+            - production
+        ConstraintDescription: must specify sandbox, staging or production.
+
+Resources:
+    Functions:
+        Type: AWS::Serverless::Application
+        Properties:
+            Location: src/functions/template.yaml
+            # Parameters:
+            #     CreateOrUpdateContactsLayerRef: !GetAtt Layers.Outputs.CreateOrUpdateContactsLayerRef
+    API:
+        Type: AWS::Serverless::Application
+        Properties:
+            Location: src/api/template.yaml
+
+    # Layers:
+    #     Type: AWS::Serverless::Application
+    #     Properties:
+    #         Location: src/layers/template.yaml

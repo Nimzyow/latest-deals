@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "es2020",
+        "strict": true,
+        "preserveConstEnums": true,
+        "noEmit": true,
+        "sourceMap": false,
+        "module": "es2015",
+        "lib": ["es2015"],
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "allowSyntheticDefaultImports": true,
+        "paths": {
+            "/opt/nodejs": ["./src/layers/create-or-update-contacts"]
+        }
+    },
+    "exclude": ["node_modules", "**/*.test.ts", "**/*/node_modules"],
+    "include": ["src/**/*.ts"]
+}

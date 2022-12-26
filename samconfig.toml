@@ -1,0 +1,12 @@
+version = 0.1
+[default]
+
+[default.global.parameters]
+stack_name = "deals-app"
+
+[default.sync.parameters]
+profile = "ripple_sandbox"
+capabilities = "CAPABILITY_IAM CAPABILITY_AUTO_EXPAND"
+
+[default.logs.parameters]
+profile = "ripple_sandbox"
