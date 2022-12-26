@@ -21,14 +21,11 @@ Resources:
         Type: AWS::Serverless::Application
         Properties:
             Location: src/functions/template.yaml
-            # Parameters:
-            #     CreateOrUpdateContactsLayerRef: !GetAtt Layers.Outputs.CreateOrUpdateContactsLayerRef
     API:
         Type: AWS::Serverless::Application
         Properties:
             Location: src/api/template.yaml
-
-    # Layers:
-    #     Type: AWS::Serverless::Application
-    #     Properties:
-    #         Location: src/layers/template.yaml
+    DB:
+        Type: AWS::Serverless::Application
+        Properties:
+            Location: src/db/template.yaml

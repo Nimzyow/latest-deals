@@ -1,0 +1,767 @@
+Transform: AWS::Serverless-2016-10-31
+Resources:
+    GetDeal:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-GetDeal
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: GetDeal
+            CodeUri: src/CreateItem
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 1024
+            Timeout: 30
+            Tracing: Active
+            Environment:
+                Variables:
+                    ITEMS_TABLE_NAME: !Ref Deals
+            Policies:
+                - DynamoDBWritePolicy:
+                      TableName: !Ref Deals
+            Events:
+                DealsApiGETdealid:
+                    Type: Api
+                    Properties:
+                        Path: /deal/{id}
+                        Method: GET
+                        RestApiId: !Ref DealsApi
+    GetBrandDeals:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: GetBrandDeals
+            CodeUri: src/Function
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 3008
+            Timeout: 30
+            Tracing: Active
+            Events:
+                DealsApiGETbranddealsbrand:
+                    Type: Api
+                    Properties:
+                        Path: /brand-deals/{brand}
+                        Method: GET
+                        RestApiId: !Ref DealsApi
+            Environment:
+                Variables:
+                    TABLE_NAME: !Ref Deals
+                    TABLE_ARN: !GetAtt Deals.Arn
+            Policies:
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref Deals
+    GetBrandDealsLogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${GetBrandDeals}
+    GetBrands:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-GetBrands
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: GetBrands
+            CodeUri: src/GetItem
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 1024
+            Timeout: 30
+            Tracing: Active
+            Environment:
+                Variables:
+                    ITEMS_TABLE_NAME: !Ref Deals
+            Policies:
+                - DynamoDBReadPolicy:
+                      TableName: !Ref Deals
+            Events:
+                DealsApiGETbrands:
+                    Type: Api
+                    Properties:
+                        Path: /brands
+                        Method: GET
+                        RestApiId: !Ref DealsApi
+    GetLatestAndFeaturedDealsByCategory:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-GetLatestAndFeaturedDea
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: GetLatestAndFeaturedDealsByCategory
+            CodeUri: src/UpdateItem
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 1024
+            Timeout: 30
+            Tracing: Active
+            Environment:
+                Variables:
+                    ITEMS_TABLE_NAME: !Ref Deals
+            Policies:
+                - DynamoDBWritePolicy:
+                      TableName: !Ref Deals
+            Events:
+                DealsApiGETlatestandfeatureddealscategory:
+                    Type: Api
+                    Properties:
+                        Path: /latest-and- featured-deals/{category}
+                        Method: GET
+                        RestApiId: !Ref DealsApi
+    GetLatestAndFeaturedDeals:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-GetLatestAndFeaturedDea
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: GetLatestAndFeaturedDeals
+            CodeUri: src/DeleteItem
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 1024
+            Timeout: 30
+            Tracing: Active
+            Environment:
+                Variables:
+                    ITEMS_TABLE_NAME: !Ref Deals
+            Policies:
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref Deals
+            Events:
+                DealsApiGETlatestandfeatureddeals:
+                    Type: Api
+                    Properties:
+                        Path: /latest-and- featured-deals
+                        Method: GET
+                        RestApiId: !Ref DealsApi
+    GetFeaturedDealsEditorsChoice:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-GetFeaturedDealsEditors
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: GetFeaturedDealsEditorsChoice
+            CodeUri: src/ListItems
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 1024
+            Timeout: 30
+            Tracing: Active
+            Environment:
+                Variables:
+                    ITEMS_TABLE_NAME: !Ref Deals
+            Policies:
+                - DynamoDBReadPolicy:
+                      TableName: !Ref Deals
+            Events:
+                DealsApiGETfeatureddealseditorschoice:
+                    Type: Api
+                    Properties:
+                        Path: /featured-deals- editors-choice
+                        Method: GET
+                        RestApiId: !Ref DealsApi
+    SetBrandLike:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: SetBrandLike
+            CodeUri: src/Function2
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 3008
+            Timeout: 30
+            Tracing: Active
+            Events:
+                DealsApiPOSTbrandlike:
+                    Type: Api
+                    Properties:
+                        Path: /brand-like
+                        Method: POST
+                        RestApiId: !Ref DealsApi
+            Environment:
+                Variables:
+                    TABLE_NAME: !Ref Deals
+                    TABLE_ARN: !GetAtt Deals.Arn
+            Policies:
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref Deals
+    SetBrandLikeLogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${SetBrandLike}
+    SetBrandWatch:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: SetBrandWatch
+            CodeUri: src/Function2
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 3008
+            Timeout: 30
+            Tracing: Active
+            Events:
+                DealsApiPOSTbrandwatch:
+                    Type: Api
+                    Properties:
+                        Path: /brand-watch
+                        Method: POST
+                        RestApiId: !Ref DealsApi
+            Environment:
+                Variables:
+                    TABLE_NAME: !Ref Deals
+                    TABLE_ARN: !GetAtt Deals.Arn
+            Policies:
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref Deals
+    SetBrandWatchLogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${SetBrandWatch}
+    SetCategoryLike:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: SetCategoryLike
+            CodeUri: src/Function3
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 3008
+            Timeout: 30
+            Tracing: Active
+            Events:
+                DealsApiPOSTcategorylike:
+                    Type: Api
+                    Properties:
+                        Path: /category-like
+                        Method: POST
+                        RestApiId: !Ref DealsApi
+            Environment:
+                Variables:
+                    TABLE_NAME: !Ref Deals
+                    TABLE_ARN: !GetAtt Deals.Arn
+            Policies:
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref Deals
+    SetCategoryLikeLogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${SetCategoryLike}
+    SetCategoryWatch:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: SetCategoryWatch
+            CodeUri: src/Function4
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 3008
+            Timeout: 30
+            Tracing: Active
+            Events:
+                DealsApiPOSTcategorywatch:
+                    Type: Api
+                    Properties:
+                        Path: /category-watch
+                        Method: POST
+                        RestApiId: !Ref DealsApi
+            Environment:
+                Variables:
+                    TABLE_NAME: !Ref Deals
+                    TABLE_ARN: !GetAtt Deals.Arn
+            Policies:
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref Deals
+    SetCategoryWatchLogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${SetCategoryWatch}
+    SetFeaturedDeals:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: SetFeaturedDeals
+            CodeUri: src/Function5
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 3008
+            Timeout: 30
+            Tracing: Active
+            Events:
+                DealsApiPOSTfeatureddeals:
+                    Type: Api
+                    Properties:
+                        Path: /featured-deals
+                        Method: POST
+                        RestApiId: !Ref DealsApi
+            Environment:
+                Variables:
+                    TABLE_NAME: !Ref Deals
+                    TABLE_ARN: !GetAtt Deals.Arn
+            Policies:
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref Deals
+    SetFeaturedDealsLogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${SetFeaturedDeals}
+    SetFeaturedDealsByCategory:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: SetFeaturedDealsByCategory
+            CodeUri: src/Function2
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 3008
+            Timeout: 30
+            Tracing: Active
+            Events:
+                DealsApiPOSTfeatureddealscategory:
+                    Type: Api
+                    Properties:
+                        Path: /featured-deals-category
+                        Method: POST
+                        RestApiId: !Ref DealsApi
+    SetFeaturedDealsByCategoryLogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${SetFeaturedDealsByCategory}
+    SetFeaturedDealsEditorsChoice:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: SetFeaturedDealsEditorsChoice
+            CodeUri: src/Function2
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 3008
+            Timeout: 30
+            Tracing: Active
+            Events:
+                DealsApiPOSTfeatureddealseditorschoice:
+                    Type: Api
+                    Properties:
+                        Path: /featured-deals-editors-choice
+                        Method: POST
+                        RestApiId: !Ref DealsApi
+    SetFeaturedDealsEditorsChoiceLogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${SetFeaturedDealsEditorsChoice}
+    Deals:
+        Type: AWS::DynamoDB::Table
+        Properties:
+            AttributeDefinitions:
+                - AttributeName: PK
+                  AttributeType: S
+                - AttributeName: SK
+                  AttributeType: S
+            BillingMode: PAY_PER_REQUEST
+            KeySchema:
+                - AttributeName: PK
+                  KeyType: HASH
+                - AttributeName: SK
+                  KeyType: RANGE
+    DealsApi:
+        Type: AWS::Serverless::Api
+        Properties:
+            Name: !Sub
+                - ${ResourceName} From Stack ${AWS::StackName}
+                - ResourceName: DealsApi
+            StageName: Prod
+            DefinitionBody:
+                openapi: "3.0"
+                info: {}
+                paths:
+                    /featured-deals- editors-choice:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetFeaturedDealsEditorsChoice.Arn}/invocations
+                            responses: {}
+                    /brand-deals/{brand}:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetBrandDeals.Arn}/invocations
+                            responses: {}
+                    /deal/{id}:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetDeal.Arn}/invocations
+                            responses: {}
+                    /brands:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetBrands.Arn}/invocations
+                            responses: {}
+                    /latest-and- featured-deals/{category}:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetLatestAndFeaturedDealsByCategory.Arn}/invocations
+                            responses: {}
+                    /latest-and- featured-deals:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetLatestAndFeaturedDeals.Arn}/invocations
+                            responses: {}
+                    /brand-like:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetBrandLike.Arn}/invocations
+                            responses: {}
+                    /brand-watch:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetBrandWatch.Arn}/invocations
+                            responses: {}
+                    /category-like:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetCategoryLike.Arn}/invocations
+                            responses: {}
+                    /category-watch:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetCategoryWatch.Arn}/invocations
+                            responses: {}
+                    /featured-deals:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetFeaturedDeals.Arn}/invocations
+                            responses: {}
+                    /featured-deals-category:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetFeaturedDealsByCategory.Arn}/invocations
+                            responses: {}
+                    /featured-deals-editors-choice:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetFeaturedDealsEditorsChoice.Arn}/invocations
+                            responses: {}
+            EndpointConfiguration: REGIONAL
+            TracingEnabled: true
+    UserPool:
+        Type: AWS::Cognito::UserPool
+        Properties:
+            AdminCreateUserConfig:
+                AllowAdminCreateUserOnly: false
+            AliasAttributes:
+                - email
+                - preferred_username
+            UserPoolName: !Sub ${AWS::StackName}-UserPool
+    Function2:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: Function2
+            CodeUri: src/Function2
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 3008
+            Timeout: 30
+            Tracing: Active
+            Environment:
+                Variables:
+                    USER_POOL_ID: !Ref UserPool
+                    USER_POOL_ARN: !GetAtt UserPool.Arn
+            Policies:
+                - Statement:
+                      - Effect: Allow
+                        Action:
+                            - cognito-idp:Admin*
+                            - cognito-idp:DescribeIdentityProvider
+                            - cognito-idp:DescribeResourceServer
+                            - cognito-idp:DescribeUserPool
+                            - cognito-idp:DescribeUserPoolClient
+                            - cognito-idp:DescribeUserPoolDomain
+                            - cognito-idp:GetGroup
+                            - cognito-idp:ListGroups
+                            - cognito-idp:ListUserPoolClients
+                            - cognito-idp:ListUsers
+                            - cognito-idp:ListUsersInGroup
+                            - cognito-idp:UpdateGroup
+                        Resource: !GetAtt UserPool.Arn
+            Events:
+                Deals:
+                    Type: DynamoDB
+                    Properties:
+                        Stream: !GetAtt Deals.StreamArn
+                        StartingPosition: TRIM_HORIZON
+                        BatchSize: 1
+    Function2LogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${Function2}
+    UserApi:
+        Type: AWS::Serverless::Api
+        Properties:
+            Name: !Sub
+                - ${ResourceName} From Stack ${AWS::StackName}
+                - ResourceName: UserApi
+            StageName: Prod
+            DefinitionBody:
+                openapi: "3.0"
+                info: {}
+                paths:
+                    /messages/{username}:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetMessages.Arn}/invocations
+                            responses: {}
+                    /message/{id}:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetMessageAsRead.Arn}/invocations
+                            responses: {}
+                    /send-hot-new-deal-message:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SendHotNewDealMessage.Arn}/invocations
+                            responses: {}
+                    /send-brand-deal-message:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SendBrandDealMessage.Arn}/invocations
+                            responses: {}
+                    /send-category-deal-message:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SendCategoryDealMessage.Arn}/invocations
+                            responses: {}
+            EndpointConfiguration: REGIONAL
+            TracingEnabled: true
+    GetMessages:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: GetMessages
+            CodeUri: src/Function3
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 3008
+            Timeout: 30
+            Tracing: Active
+            Events:
+                UserApiGETmessagesusername:
+                    Type: Api
+                    Properties:
+                        Path: /messages/{username}
+                        Method: GET
+                        RestApiId: !Ref UserApi
+            Environment:
+                Variables:
+                    TABLE_NAME: !Ref Deals
+                    TABLE_ARN: !GetAtt Deals.Arn
+            Policies:
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref Deals
+    GetMessagesLogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${GetMessages}
+    SetMessageAsRead:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: SetMessageAsRead
+            CodeUri: src/Function4
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 3008
+            Timeout: 30
+            Tracing: Active
+            Events:
+                UserApiPOSTmessageid:
+                    Type: Api
+                    Properties:
+                        Path: /message/{id}
+                        Method: POST
+                        RestApiId: !Ref UserApi
+            Environment:
+                Variables:
+                    TABLE_NAME: !Ref Deals
+                    TABLE_ARN: !GetAtt Deals.Arn
+            Policies:
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref Deals
+    SetMessageAsReadLogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${SetMessageAsRead}
+    SendHotNewDealMessage:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: SendHotNewDealMessage
+            CodeUri: src/Function5
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 3008
+            Timeout: 30
+            Tracing: Active
+            Events:
+                UserApiPOSTsendhotnewdealmessage:
+                    Type: Api
+                    Properties:
+                        Path: /send-hot-new-deal-message
+                        Method: POST
+                        RestApiId: !Ref UserApi
+            Environment:
+                Variables:
+                    TABLE_NAME: !Ref Deals
+                    TABLE_ARN: !GetAtt Deals.Arn
+            Policies:
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref Deals
+    SendHotNewDealMessageLogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${SendHotNewDealMessage}
+    SendBrandDealMessage:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: SendBrandDealMessage
+            CodeUri: src/Function6
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 3008
+            Timeout: 30
+            Tracing: Active
+            Events:
+                UserApiPOSTsendbranddealmessage:
+                    Type: Api
+                    Properties:
+                        Path: /send-brand-deal-message
+                        Method: POST
+                        RestApiId: !Ref UserApi
+            Environment:
+                Variables:
+                    TABLE_NAME: !Ref Deals
+                    TABLE_ARN: !GetAtt Deals.Arn
+            Policies:
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref Deals
+    SendBrandDealMessageLogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${SendBrandDealMessage}
+    SendCategoryDealMessage:
+        Type: AWS::Serverless::Function
+        Properties:
+            Description: !Sub
+                - Stack ${AWS::StackName} Function ${ResourceName}
+                - ResourceName: SendCategoryDealMessage
+            CodeUri: src/Function7
+            Handler: index.handler
+            Runtime: nodejs18.x
+            MemorySize: 3008
+            Timeout: 30
+            Tracing: Active
+            Events:
+                UserApiPOSTsendcategorydealmessage:
+                    Type: Api
+                    Properties:
+                        Path: /send-category-deal-message
+                        Method: POST
+                        RestApiId: !Ref UserApi
+            Environment:
+                Variables:
+                    TABLE_NAME: !Ref Deals
+                    TABLE_ARN: !GetAtt Deals.Arn
+            Policies:
+                - DynamoDBCrudPolicy:
+                      TableName: !Ref Deals
+    SendCategoryDealMessageLogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Retain
+        Properties:
+            LogGroupName: !Sub /aws/lambda/${SendCategoryDealMessage}
+Metadata:
+    AWS::Composer::Groups:
+        Group:
+            Label: Deals API Compute
+            Members:
+                - GetFeaturedDealsEditorsChoice
+                - GetDeal
+                - GetBrands
+                - GetLatestAndFeaturedDealsByCategory
+                - GetLatestAndFeaturedDeals
+                - SetBrandLike
+                - SetBrandWatch
+                - SetCategoryLike
+                - SetCategoryWatch
+                - GetBrandDeals
+                - SetFeaturedDeals
+                - SetFeaturedDealsByCategory
+                - SetFeaturedDealsEditorsChoice
+        Group2:
+            Label: User API Compute
+            Members:
+                - SendHotNewDealMessage
+                - SetMessageAsRead
+                - GetMessages
+                - SendBrandDealMessage
+                - SendCategoryDealMessage
