@@ -1,6 +1,12 @@
-import { APIGatewayProxyResult, APIGatewayProxyEvent } from "aws-lambda"
+import { APIGatewayProxyResult, APIGatewayProxyEvent, Context } from "aws-lambda"
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb"
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const lambdaHandler = async (
+    event: APIGatewayProxyEvent,
+    context: Context
+): Promise<APIGatewayProxyResult> => {
+    const client = new DynamoDBClient({ region: context.invokedFunctionArn.split(":")[3] })
+
     let response: APIGatewayProxyResult
     try {
         response = {
