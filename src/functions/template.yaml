@@ -6,92 +6,246 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
     Function:
-        Timeout: 10
-        MemorySize: 1024
+        Timeout: 30
         Runtime: nodejs16.x
+        memorySize: 1024
         Handler: index.handler
+        Tracing: Active
         Architectures:
             - x86_64
-        Environment:
-            Variables:
-                NODE_ENV: !FindInMap [EnvironmentVariableMap, NodeEnv, !Ref DeploymentAccount]
-
-Parameters:
-    CreateOrUpdateContactsQueueArn:
-        Type: String
-    ChangeContactEmailQueueArn:
-        Type: String
-    AlarmBreachQueueArn:
-        Type: String
-    CreateOrUpdateContactsLayerRef:
-        Type: String
-    DeploymentAccount:
-        Type: String
-
-Mappings:
-    EnvironmentVariableMap:
-        NodeEnv:
-            sandbox: development
-            staging: staging
-            production: production
 
 Resources:
-    CreateOrUpdateContacts:
-        Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-        Properties:
-            CodeUri: create-or-update-contacts/
-            Events:
-                CreateOrUpdateContactsQueue:
-                    Type: SQS
-                    Properties:
-                        Queue: !Ref CreateOrUpdateContactsQueueArn
-            Layers:
-                - !Ref CreateOrUpdateContactsLayerRef
-        Metadata: # Manage esbuild properties
-            BuildMethod: esbuild
-            BuildProperties:
-                Minify: true
-                Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
-                EntryPoints:
-                    - index.ts
-                External:
-                    - "/opt/nodejs"
-    ChangeContactEmail:
-        Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-        Properties:
-            CodeUri: change-contact-email/
-            Events:
-                ChangeContactEmailQueue:
-                    Type: SQS
-                    Properties:
-                        Queue: !Ref ChangeContactEmailQueueArn
-            Layers:
-                - !Ref CreateOrUpdateContactsLayerRef
-        Metadata: # Manage esbuild properties
-            BuildMethod: esbuild
-            BuildProperties:
-                Minify: true
-                Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
-                EntryPoints:
-                    - index.ts
-                External:
-                    - "/opt/nodejs"
-
-    AlarmBreach:
+    GetDeal:
         Type: AWS::Serverless::Function
         Properties:
-            CodeUri: alarm-breach/
+            FunctionName: !Sub ${AWS::StackName}-GetDeal
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/get-deal
             Events:
-                AlarmBreachQueue:
-                    Type: SQS
+                DealsApiGETDealId:
+                    Type: Api
                     Properties:
-                        Queue: !Ref AlarmBreachQueueArn
-        Metadata: # Manage esbuild properties
-            BuildMethod: esbuild
-            BuildProperties:
-                Minify: true
-                Target: "es2020"
-                EntryPoints:
-                    - index.ts
+                        Path: /deal/{id}
+                        Method: GET
+                        RestApiId: !Ref DealsApi
+    GetBrandDeals:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-GetBrandDeals
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/get-brand-deals
+            Events:
+                DealsApiGETBrandDeals:
+                    Type: Api
+                    Properties:
+                        Path: /brand-deals/{brand}
+                        Method: GET
+                        RestApiId: !Ref DealsApi
+    GetBrands:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-GetBrands
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/get-brands
+            Events:
+                DealsApiGETbrands:
+                    Type: Api
+                    Properties:
+                        Path: /brands
+                        Method: GET
+                        RestApiId: !Ref DealsApi
+    GetLatestAndFeaturedDealsByCategory:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-GetLatestAndFeaturedDealsByCategory
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/UpdateItem
+            Events:
+                DealsApiGETLatestAndFeaturedDealsCategory:
+                    Type: Api
+                    Properties:
+                        Path: /latest-and-featured-deals/{category}
+                        Method: GET
+                        RestApiId: !Ref DealsApi
+    GetLatestAndFeaturedDeals:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-GetLatestAndFeaturedDeals
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/DeleteItem
+            Events:
+                DealsApiGETLatestAndFeaturedDeals:
+                    Type: Api
+                    Properties:
+                        Path: /latest-and-featured-deals
+                        Method: GET
+                        RestApiId: !Ref DealsApi
+    GetFeaturedDealsEditorsChoice:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-GetFeaturedDealsEditors
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/ListItems
+            Events:
+                DealsApiGETFeaturedDealsEditorsChoice:
+                    Type: Api
+                    Properties:
+                        Path: /featured-deals-editors-choice
+                        Method: GET
+                        RestApiId: !Ref DealsApi
+    SetBrandLike:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-SetBrandLike
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/set-brands-like
+            Events:
+                DealsApiPOSTBrandLike:
+                    Type: Api
+                    Properties:
+                        Path: /brand-like
+                        Method: POST
+                        RestApiId: !Ref DealsApi
+    SetBrandWatch:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-SetBrandWatch
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/set-brand-watch
+            Events:
+                DealsApiPOSTBrandWatch:
+                    Type: Api
+                    Properties:
+                        Path: /brand-watch
+                        Method: POST
+                        RestApiId: !Ref DealsApi
+    SetCategoryLike:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-SetCategoryLike
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/set-category-like
+            Events:
+                DealsApiPOSTcategorylike:
+                    Type: Api
+                    Properties:
+                        Path: /category-like
+                        Method: POST
+                        RestApiId: !Ref DealsApi
+    SetCategoryWatch:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-SetCategoryWatch
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/set-category-watch
+            Events:
+                DealsApiPOSTCategoryWatch:
+                    Type: Api
+                    Properties:
+                        Path: /category-watch
+                        Method: POST
+                        RestApiId: !Ref DealsApi
+    SetFeaturedDeals:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-SetFeaturedDeals
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/set-featured-deals
+            Events:
+                DealsApiPOSTfeatureddeals:
+                    Type: Api
+                    Properties:
+                        Path: /featured-deals
+                        Method: POST
+                        RestApiId: !Ref DealsApi
+    SetFeaturedDealsByCategory:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-SetFeaturedDealsByCategory
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/set-featured-deals-by-category
+            Events:
+                DealsApiPOSTFeaturedDealsCategory:
+                    Type: Api
+                    Properties:
+                        Path: /featured-deals-category
+                        Method: POST
+                        RestApiId: !Ref DealsApi
+    SetFeaturedDealsEditorsChoice:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-SetFeaturedDealsEditorsChoice
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/set-featured-deals-editors-choice
+            Events:
+                DealsApiPOSTFeaturedDealsEditorsChoice:
+                    Type: Api
+                    Properties:
+                        Path: /featured-deals-editors-choice
+                        Method: POST
+                        RestApiId: !Ref DealsApi
+    GetMessages:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-GetMessages
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/get-messages
+            Events:
+                UserApiGETMessagesUsername:
+                    Type: Api
+                    Properties:
+                        Path: /messages/{username}
+                        Method: GET
+                        RestApiId: !Ref UserApi
+    SetMessageAsRead:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-SetMessageAsRead
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/set-message-as-read
+            Events:
+                UserApiPOSTMessageId:
+                    Type: Api
+                    Properties:
+                        Path: /message/{id}
+                        Method: POST
+                        RestApiId: !Ref UserApi
+    SendHotNewDealMessage:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-SendHotNewDealMessage
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/send-hot-new-deal-message
+            Events:
+                UserApiPOSTSendHotNewDealMessage:
+                    Type: Api
+                    Properties:
+                        Path: /send-hot-new-deal-message
+                        Method: POST
+                        RestApiId: !Ref UserApi
+    SendBrandDealMessage:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-SendBrandDealMessage
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/send-brand-deal-message
+            Events:
+                UserApiPOSTSendBrandDealMessage:
+                    Type: Api
+                    Properties:
+                        Path: /send-brand-deal-message
+                        Method: POST
+                        RestApiId: !Ref UserApi
+    SendCategoryDealMessage:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-SendCategoryDealMessage
+            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            CodeUri: src/send-category-deal-message
+            Events:
+                UserApiPOSTSendCategoryDealMessage:
+                    Type: Api
+                    Properties:
+                        Path: /send-category-deal-message
+                        Method: POST
+                        RestApiId: !Ref UserApi

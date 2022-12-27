@@ -5,17 +5,6 @@ Description: >
 
     Sample SAM Template for deals-app
 
-Parameters:
-    DeploymentAccount:
-        Description: Deployment account
-        Default: sandbox
-        Type: String
-        AllowedValues:
-            - sandbox
-            - staging
-            - production
-        ConstraintDescription: must specify sandbox, staging or production.
-
 Resources:
     Functions:
         Type: AWS::Serverless::Application
