@@ -82,6 +82,9 @@ Resources:
             CodeUri: get-brands
             Layers:
                 - !Ref DepsLayer
+            Policies:
+                - DynamoDBReadPolicy:
+                      TableName: Deal
             Events:
                 APICall:
                     Type: Api

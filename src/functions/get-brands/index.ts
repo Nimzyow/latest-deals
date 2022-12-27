@@ -5,29 +5,18 @@ export const handler = async (
     event: APIGatewayProxyEvent,
     context: Context
 ): Promise<APIGatewayProxyResult> => {
-    const dealId = event.queryStringParameters?.name
-
-    if (dealId === undefined) {
-        return {
-            statusCode: 400,
-            body: JSON.stringify({
-                message: "name query parameter is required",
-            }),
-        }
-    }
-
     const client = new DynamoDBClient({ region: context.invokedFunctionArn.split(":")[3] })
 
-    const getDeal = new GetItemCommand({
+    const getBrands = new GetItemCommand({
         TableName: "Deal",
         Key: {
-            PK: { S: `DEAL#${dealId}` },
-            SK: { S: `DEAL#${dealId}` },
+            PK: { S: "BRANDS" },
+            SK: { S: "BRANDS" },
         },
     })
 
     try {
-        const response = client.send(getDeal)
+        const response = await client.send(getBrands)
         return {
             statusCode: 200,
             body: JSON.stringify(response),
