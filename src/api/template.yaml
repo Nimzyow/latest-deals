@@ -1,0 +1,115 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+    deals-app
+
+    Sample SAM Template for deals-app
+
+Resources:
+    DealsApi:
+        Type: AWS::Serverless::HttpApi
+        Properties:
+            StageName: Prod
+            DefinitionBody:
+                openapi: "3.0"
+                info: {}
+                paths:
+                    /featured-deals- editors-choice:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetFeaturedDealsEditorsChoice.Arn}/invocations
+                            responses: {}
+                    /brand-deals/{brand}:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetBrandDeals.Arn}/invocations
+                            responses: {}
+                    /deal/{id}:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetDeal.Arn}/invocations
+                            responses: {}
+                    /brands:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetBrands.Arn}/invocations
+                            responses: {}
+                    /latest-and- featured-deals/{category}:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetLatestAndFeaturedDealsByCategory.Arn}/invocations
+                            responses: {}
+                    /latest-and- featured-deals:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetLatestAndFeaturedDeals.Arn}/invocations
+                            responses: {}
+                    /brand-like:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetBrandLike.Arn}/invocations
+                            responses: {}
+                    /brand-watch:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetBrandWatch.Arn}/invocations
+                            responses: {}
+                    /category-like:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetCategoryLike.Arn}/invocations
+                            responses: {}
+                    /category-watch:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetCategoryWatch.Arn}/invocations
+                            responses: {}
+                    /featured-deals:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetFeaturedDeals.Arn}/invocations
+                            responses: {}
+                    /featured-deals-category:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetFeaturedDealsByCategory.Arn}/invocations
+                            responses: {}
+                    /featured-deals-editors-choice:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetFeaturedDealsEditorsChoice.Arn}/invocations
+                            responses: {}
+
+Outputs:
+    DealsApi:
+        Description: "API Gateway Ref"
+        Value: !Ref DealsApi
+    DealsApiEndpoint:
+        Description: "API Gateway Endpoint"
+        Value: !Sub "https://${DealsApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"

@@ -8,244 +8,537 @@ Globals:
     Function:
         Timeout: 30
         Runtime: nodejs16.x
-        memorySize: 1024
+        MemorySize: 1024
         Handler: index.handler
         Tracing: Active
         Architectures:
             - x86_64
 
+# Parameters:
+#     DealsApi:
+#         Type: String
+
 Resources:
+    DepsLayer:
+        Type: AWS::Serverless::LayerVersion
+        Properties:
+            LayerName: AWSSDKDynamoDBLayer
+            Description: aws sdk DynamoDB package
+            ContentUri: "../layers/deps/"
+            CompatibleRuntimes:
+                - nodejs16.x
     GetDeal:
         Type: AWS::Serverless::Function
         Properties:
             FunctionName: !Sub ${AWS::StackName}-GetDeal
             Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/get-deal
+            CodeUri: get-deal
+            Layers:
+                - !Ref DepsLayer
             Events:
                 DealsApiGETDealId:
-                    Type: Api
+                    Type: HttpApi
                     Properties:
                         Path: /deal/{id}
                         Method: GET
-                        RestApiId: !Ref DealsApi
-    GetBrandDeals:
-        Type: AWS::Serverless::Function
+                        ApiId: !Ref DealsApi
+        Metadata: # Manage esbuild properties
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: "es2020"
+                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+                EntryPoints:
+                    - index.ts
+                External:
+                    - "@aws-sdk/client-dynamodb"
+    # GetBrandDeals:
+    #     Type: AWS::Serverless::Function
+    #     Properties:
+    #         FunctionName: !Sub ${AWS::StackName}-GetBrandDeals
+    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+    #         CodeUri: src/get-brand-deals
+    #         Events:
+    #             DealsApiGETBrandDeals:
+    #                 Type: HttpApi
+    #                 Properties:
+    #                     Path: /brand-deals/{brand}
+    #                     Method: GET
+    #                     ApiId: !Ref DealsApi
+    #     Metadata: # Manage esbuild properties
+    #         BuildMethod: esbuild
+    #         BuildProperties:
+    #             Minify: true
+    #             Target: "es2020"
+    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+    #             EntryPoints:
+    #                 - index.ts
+    #             External:
+    #                 - "@aws-sdk/client-dynamodb"
+    # GetBrands:
+    #     Type: AWS::Serverless::Function
+    #     Properties:
+    #         FunctionName: !Sub ${AWS::StackName}-GetBrands
+    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+    #         CodeUri: src/get-brands
+    #         Events:
+    #             DealsApiGETbrands:
+    #                 Type: HttpApi
+    #                 Properties:
+    #                     Path: /brands
+    #                     Method: GET
+    #                     ApiId: !Ref DealsApi
+    #     Metadata: # Manage esbuild properties
+    #         BuildMethod: esbuild
+    #         BuildProperties:
+    #             Minify: true
+    #             Target: "es2020"
+    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+    #             EntryPoints:
+    #                 - index.ts
+    #             External:
+    #                 - "@aws-sdk/client-dynamodb"
+    # GetLatestAndFeaturedDealsByCategory:
+    #     Type: AWS::Serverless::Function
+    #     Properties:
+    #         FunctionName: !Sub ${AWS::StackName}-GetLatestAndFeaturedDealsByCategory
+    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+    #         CodeUri: src/UpdateItem
+    #         Events:
+    #             DealsApiGETLatestAndFeaturedDealsCategory:
+    #                 Type: HttpApi
+    #                 Properties:
+    #                     Path: /latest-and-featured-deals/{category}
+    #                     Method: GET
+    #                     ApiId: !Ref DealsApi
+    #     Metadata: # Manage esbuild properties
+    #         BuildMethod: esbuild
+    #         BuildProperties:
+    #             Minify: true
+    #             Target: "es2020"
+    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+    #             EntryPoints:
+    #                 - index.ts
+    #             External:
+    #                 - "@aws-sdk/client-dynamodb"
+    # GetLatestAndFeaturedDeals:
+    #     Type: AWS::Serverless::Function
+    #     Properties:
+    #         FunctionName: !Sub ${AWS::StackName}-GetLatestAndFeaturedDeals
+    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+    #         CodeUri: src/DeleteItem
+    #         Events:
+    #             DealsApiGETLatestAndFeaturedDeals:
+    #                 Type: HttpApi
+    #                 Properties:
+    #                     Path: /latest-and-featured-deals
+    #                     Method: GET
+    #                     ApiId: !Ref DealsApi
+    #     Metadata: # Manage esbuild properties
+    #         BuildMethod: esbuild
+    #         BuildProperties:
+    #             Minify: true
+    #             Target: "es2020"
+    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+    #             EntryPoints:
+    #                 - index.ts
+    #             External:
+    #                 - "@aws-sdk/client-dynamodb"
+    # GetFeaturedDealsEditorsChoice:
+    #     Type: AWS::Serverless::Function
+    #     Properties:
+    #         FunctionName: !Sub ${AWS::StackName}-GetFeaturedDealsEditors
+    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+    #         CodeUri: src/ListItems
+    #         Events:
+    #             DealsApiGETFeaturedDealsEditorsChoice:
+    #                 Type: HttpApi
+    #                 Properties:
+    #                     Path: /featured-deals-editors-choice
+    #                     Method: GET
+    #                     ApiId: !Ref DealsApi
+    #     Metadata: # Manage esbuild properties
+    #         BuildMethod: esbuild
+    #         BuildProperties:
+    #             Minify: true
+    #             Target: "es2020"
+    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+    #             EntryPoints:
+    #                 - index.ts
+    #             External:
+    #                 - "@aws-sdk/client-dynamodb"
+    # SetBrandLike:
+    #     Type: AWS::Serverless::Function
+    #     Properties:
+    #         FunctionName: !Sub ${AWS::StackName}-SetBrandLike
+    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+    #         CodeUri: src/set-brands-like
+    #         Events:
+    #             DealsApiPOSTBrandLike:
+    #                 Type: HttpApi
+    #                 Properties:
+    #                     Path: /brand-like
+    #                     Method: POST
+    #                     ApiId: !Ref DealsApi
+    #     Metadata: # Manage esbuild properties
+    #         BuildMethod: esbuild
+    #         BuildProperties:
+    #             Minify: true
+    #             Target: "es2020"
+    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+    #             EntryPoints:
+    #                 - index.ts
+    #             External:
+    #                 - "@aws-sdk/client-dynamodb"
+    # SetBrandWatch:
+    #     Type: AWS::Serverless::Function
+    #     Properties:
+    #         FunctionName: !Sub ${AWS::StackName}-SetBrandWatch
+    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+    #         CodeUri: src/set-brand-watch
+    #         Events:
+    #             DealsApiPOSTBrandWatch:
+    #                 Type: HttpApi
+    #                 Properties:
+    #                     Path: /brand-watch
+    #                     Method: POST
+    #                     ApiId: !Ref DealsApi
+    #     Metadata: # Manage esbuild properties
+    #         BuildMethod: esbuild
+    #         BuildProperties:
+    #             Minify: true
+    #             Target: "es2020"
+    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+    #             EntryPoints:
+    #                 - index.ts
+    #             External:
+    #                 - "@aws-sdk/client-dynamodb"
+    # SetCategoryLike:
+    #     Type: AWS::Serverless::Function
+    #     Properties:
+    #         FunctionName: !Sub ${AWS::StackName}-SetCategoryLike
+    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+    #         CodeUri: src/set-category-like
+    #         Events:
+    #             DealsApiPOSTcategorylike:
+    #                 Type: HttpApi
+    #                 Properties:
+    #                     Path: /category-like
+    #                     Method: POST
+    #                     ApiId: !Ref DealsApi
+    #     Metadata: # Manage esbuild properties
+    #         BuildMethod: esbuild
+    #         BuildProperties:
+    #             Minify: true
+    #             Target: "es2020"
+    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+    #             EntryPoints:
+    #                 - index.ts
+    #             External:
+    #                 - "@aws-sdk/client-dynamodb"
+    # SetCategoryWatch:
+    #     Type: AWS::Serverless::Function
+    #     Properties:
+    #         FunctionName: !Sub ${AWS::StackName}-SetCategoryWatch
+    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+    #         CodeUri: src/set-category-watch
+    #         Events:
+    #             DealsApiPOSTCategoryWatch:
+    #                 Type: HttpApi
+    #                 Properties:
+    #                     Path: /category-watch
+    #                     Method: POST
+    #                     ApiId: !Ref DealsApi
+    #     Metadata: # Manage esbuild properties
+    #         BuildMethod: esbuild
+    #         BuildProperties:
+    #             Minify: true
+    #             Target: "es2020"
+    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+    #             EntryPoints:
+    #                 - index.ts
+    #             External:
+    #                 - "@aws-sdk/client-dynamodb"
+    # SetFeaturedDeals:
+    #     Type: AWS::Serverless::Function
+    #     Properties:
+    #         FunctionName: !Sub ${AWS::StackName}-SetFeaturedDeals
+    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+    #         CodeUri: src/set-featured-deals
+    #         Events:
+    #             DealsApiPOSTfeatureddeals:
+    #                 Type: HttpApi
+    #                 Properties:
+    #                     Path: /featured-deals
+    #                     Method: POST
+    #                     ApiId: !Ref DealsApi
+    #     Metadata: # Manage esbuild properties
+    #         BuildMethod: esbuild
+    #         BuildProperties:
+    #             Minify: true
+    #             Target: "es2020"
+    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+    #             EntryPoints:
+    #                 - index.ts
+    #             External:
+    #                 - "@aws-sdk/client-dynamodb"
+    # SetFeaturedDealsByCategory:
+    #     Type: AWS::Serverless::Function
+    #     Properties:
+    #         FunctionName: !Sub ${AWS::StackName}-SetFeaturedDealsByCategory
+    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+    #         CodeUri: src/set-featured-deals-by-category
+    #         Events:
+    #             DealsApiPOSTFeaturedDealsCategory:
+    #                 Type: HttpApi
+    #                 Properties:
+    #                     Path: /featured-deals-category
+    #                     Method: POST
+    #                     ApiId: !Ref DealsApi
+    #     Metadata: # Manage esbuild properties
+    #         BuildMethod: esbuild
+    #         BuildProperties:
+    #             Minify: true
+    #             Target: "es2020"
+    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+    #             EntryPoints:
+    #                 - index.ts
+    #             External:
+    #                 - "@aws-sdk/client-dynamodb"
+    # SetFeaturedDealsEditorsChoice:
+    #     Type: AWS::Serverless::Function
+    #     Properties:
+    #         FunctionName: !Sub ${AWS::StackName}-SetFeaturedDealsEditorsChoice
+    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+    #         CodeUri: src/set-featured-deals-editors-choice
+    #         Events:
+    #             DealsApiPOSTFeaturedDealsEditorsChoice:
+    #                 Type: HttpApi
+    #                 Properties:
+    #                     Path: /featured-deals-editors-choice
+    #                     Method: POST
+    #                     ApiId: !Ref DealsApi
+    #     Metadata: # Manage esbuild properties
+    #         BuildMethod: esbuild
+    #         BuildProperties:
+    #             Minify: true
+    #             Target: "es2020"
+    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+    #             EntryPoints:
+    #                 - index.ts
+    #             External:
+    #                 - "@aws-sdk/client-dynamodb"
+    # GetMessages:
+    #     Type: AWS::Serverless::Function
+    #     Properties:
+    #         FunctionName: !Sub ${AWS::StackName}-GetMessages
+    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+    #         CodeUri: src/get-messages
+    #         Events:
+    #             UserApiGETMessagesUsername:
+    #                 Type: HttpApi
+    #                 Properties:
+    #                     Path: /messages/{username}
+    #                     Method: GET
+    #                     ApiId: !Ref UserApi
+    # Metadata: # Manage esbuild properties
+    #     BuildMethod: esbuild
+    #     BuildProperties:
+    #         Minify: true
+    #         Target: "es2020"
+    #         # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+    #         EntryPoints:
+    #             - index.ts
+    #         External:
+    #             - "@aws-sdk/client-dynamodb"
+    # SetMessageAsRead:
+    #     Type: AWS::Serverless::Function
+    #     Properties:
+    #         FunctionName: !Sub ${AWS::StackName}-SetMessageAsRead
+    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+    #         CodeUri: src/set-message-as-read
+    #         Events:
+    #             UserApiPOSTMessageId:
+    #                 Type: HttpApi
+    #                 Properties:
+    #                     Path: /message/{id}
+    #                     Method: POST
+    #                     ApiId: !Ref UserApi
+    #     Metadata: # Manage esbuild properties
+    #         BuildMethod: esbuild
+    #         BuildProperties:
+    #             Minify: true
+    #             Target: "es2020"
+    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+    #             EntryPoints:
+    #                 - index.ts
+    #             External:
+    #                 - "@aws-sdk/client-dynamodb"
+    # SendHotNewDealMessage:
+    #     Type: AWS::Serverless::Function
+    #     Properties:
+    #         FunctionName: !Sub ${AWS::StackName}-SendHotNewDealMessage
+    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+    #         CodeUri: src/send-hot-new-deal-message
+    #         Events:
+    #             UserApiPOSTSendHotNewDealMessage:
+    #                 Type: HttpApi
+    #                 Properties:
+    #                     Path: /send-hot-new-deal-message
+    #                     Method: POST
+    #                     ApiId: !Ref UserApi
+    # Metadata: # Manage esbuild properties
+    #     BuildMethod: esbuild
+    #     BuildProperties:
+    #         Minify: true
+    #         Target: "es2020"
+    #         # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+    #         EntryPoints:
+    #             - index.ts
+    #         External:
+    #             - "@aws-sdk/client-dynamodb"
+    # SendBrandDealMessage:
+    #     Type: AWS::Serverless::Function
+    #     Properties:
+    #         FunctionName: !Sub ${AWS::StackName}-SendBrandDealMessage
+    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+    #         CodeUri: src/send-brand-deal-message
+    #         Events:
+    #             UserApiPOSTSendBrandDealMessage:
+    #                 Type: HttpApi
+    #                 Properties:
+    #                     Path: /send-brand-deal-message
+    #                     Method: POST
+    #                     ApiId: !Ref UserApi
+    # Metadata: # Manage esbuild properties
+    #     BuildMethod: esbuild
+    #     BuildProperties:
+    #         Minify: true
+    #         Target: "es2020"
+    #         # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+    #         EntryPoints:
+    #             - index.ts
+    #         External:
+    #             - "@aws-sdk/client-dynamodb"
+    # SendCategoryDealMessage:
+    #     Type: AWS::Serverless::Function
+    #     Properties:
+    #         FunctionName: !Sub ${AWS::StackName}-SendCategoryDealMessage
+    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+    #         CodeUri: src/send-category-deal-message
+    #         Events:
+    #             UserApiPOSTSendCategoryDealMessage:
+    #                 Type: HttpApi
+    #                 Properties:
+    #                     Path: /send-category-deal-message
+    #                     Method: POST
+    #                     ApiId: !Ref UserApi
+    # Metadata: # Manage esbuild properties
+    #     BuildMethod: esbuild
+    #     BuildProperties:
+    #         Minify: true
+    #         Target: "es2020"
+    #         # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+    #         EntryPoints:
+    #             - index.ts
+    #         External:
+    #             - "@aws-sdk/client-dynamodb"
+    DealsApi:
+        Type: AWS::Serverless::HttpApi
         Properties:
-            FunctionName: !Sub ${AWS::StackName}-GetBrandDeals
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/get-brand-deals
-            Events:
-                DealsApiGETBrandDeals:
-                    Type: Api
-                    Properties:
-                        Path: /brand-deals/{brand}
-                        Method: GET
-                        RestApiId: !Ref DealsApi
-    GetBrands:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: !Sub ${AWS::StackName}-GetBrands
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/get-brands
-            Events:
-                DealsApiGETbrands:
-                    Type: Api
-                    Properties:
-                        Path: /brands
-                        Method: GET
-                        RestApiId: !Ref DealsApi
-    GetLatestAndFeaturedDealsByCategory:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: !Sub ${AWS::StackName}-GetLatestAndFeaturedDealsByCategory
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/UpdateItem
-            Events:
-                DealsApiGETLatestAndFeaturedDealsCategory:
-                    Type: Api
-                    Properties:
-                        Path: /latest-and-featured-deals/{category}
-                        Method: GET
-                        RestApiId: !Ref DealsApi
-    GetLatestAndFeaturedDeals:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: !Sub ${AWS::StackName}-GetLatestAndFeaturedDeals
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/DeleteItem
-            Events:
-                DealsApiGETLatestAndFeaturedDeals:
-                    Type: Api
-                    Properties:
-                        Path: /latest-and-featured-deals
-                        Method: GET
-                        RestApiId: !Ref DealsApi
-    GetFeaturedDealsEditorsChoice:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: !Sub ${AWS::StackName}-GetFeaturedDealsEditors
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/ListItems
-            Events:
-                DealsApiGETFeaturedDealsEditorsChoice:
-                    Type: Api
-                    Properties:
-                        Path: /featured-deals-editors-choice
-                        Method: GET
-                        RestApiId: !Ref DealsApi
-    SetBrandLike:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: !Sub ${AWS::StackName}-SetBrandLike
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/set-brands-like
-            Events:
-                DealsApiPOSTBrandLike:
-                    Type: Api
-                    Properties:
-                        Path: /brand-like
-                        Method: POST
-                        RestApiId: !Ref DealsApi
-    SetBrandWatch:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: !Sub ${AWS::StackName}-SetBrandWatch
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/set-brand-watch
-            Events:
-                DealsApiPOSTBrandWatch:
-                    Type: Api
-                    Properties:
-                        Path: /brand-watch
-                        Method: POST
-                        RestApiId: !Ref DealsApi
-    SetCategoryLike:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: !Sub ${AWS::StackName}-SetCategoryLike
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/set-category-like
-            Events:
-                DealsApiPOSTcategorylike:
-                    Type: Api
-                    Properties:
-                        Path: /category-like
-                        Method: POST
-                        RestApiId: !Ref DealsApi
-    SetCategoryWatch:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: !Sub ${AWS::StackName}-SetCategoryWatch
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/set-category-watch
-            Events:
-                DealsApiPOSTCategoryWatch:
-                    Type: Api
-                    Properties:
-                        Path: /category-watch
-                        Method: POST
-                        RestApiId: !Ref DealsApi
-    SetFeaturedDeals:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: !Sub ${AWS::StackName}-SetFeaturedDeals
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/set-featured-deals
-            Events:
-                DealsApiPOSTfeatureddeals:
-                    Type: Api
-                    Properties:
-                        Path: /featured-deals
-                        Method: POST
-                        RestApiId: !Ref DealsApi
-    SetFeaturedDealsByCategory:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: !Sub ${AWS::StackName}-SetFeaturedDealsByCategory
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/set-featured-deals-by-category
-            Events:
-                DealsApiPOSTFeaturedDealsCategory:
-                    Type: Api
-                    Properties:
-                        Path: /featured-deals-category
-                        Method: POST
-                        RestApiId: !Ref DealsApi
-    SetFeaturedDealsEditorsChoice:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: !Sub ${AWS::StackName}-SetFeaturedDealsEditorsChoice
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/set-featured-deals-editors-choice
-            Events:
-                DealsApiPOSTFeaturedDealsEditorsChoice:
-                    Type: Api
-                    Properties:
-                        Path: /featured-deals-editors-choice
-                        Method: POST
-                        RestApiId: !Ref DealsApi
-    GetMessages:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: !Sub ${AWS::StackName}-GetMessages
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/get-messages
-            Events:
-                UserApiGETMessagesUsername:
-                    Type: Api
-                    Properties:
-                        Path: /messages/{username}
-                        Method: GET
-                        RestApiId: !Ref UserApi
-    SetMessageAsRead:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: !Sub ${AWS::StackName}-SetMessageAsRead
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/set-message-as-read
-            Events:
-                UserApiPOSTMessageId:
-                    Type: Api
-                    Properties:
-                        Path: /message/{id}
-                        Method: POST
-                        RestApiId: !Ref UserApi
-    SendHotNewDealMessage:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: !Sub ${AWS::StackName}-SendHotNewDealMessage
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/send-hot-new-deal-message
-            Events:
-                UserApiPOSTSendHotNewDealMessage:
-                    Type: Api
-                    Properties:
-                        Path: /send-hot-new-deal-message
-                        Method: POST
-                        RestApiId: !Ref UserApi
-    SendBrandDealMessage:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: !Sub ${AWS::StackName}-SendBrandDealMessage
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/send-brand-deal-message
-            Events:
-                UserApiPOSTSendBrandDealMessage:
-                    Type: Api
-                    Properties:
-                        Path: /send-brand-deal-message
-                        Method: POST
-                        RestApiId: !Ref UserApi
-    SendCategoryDealMessage:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: !Sub ${AWS::StackName}-SendCategoryDealMessage
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-            CodeUri: src/send-category-deal-message
-            Events:
-                UserApiPOSTSendCategoryDealMessage:
-                    Type: Api
-                    Properties:
-                        Path: /send-category-deal-message
-                        Method: POST
-                        RestApiId: !Ref UserApi
+            StageName: Prod
+            DefinitionBody:
+                openapi: "3.0"
+                info: {}
+                paths:
+                    /featured-deals- editors-choice:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetFeaturedDealsEditorsChoice.Arn}/invocations
+                            responses: {}
+                    /brand-deals/{brand}:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetBrandDeals.Arn}/invocations
+                            responses: {}
+                    /deal/{id}:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetDeal.Arn}/invocations
+                            responses: {}
+                    /brands:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetBrands.Arn}/invocations
+                            responses: {}
+                    /latest-and- featured-deals/{category}:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetLatestAndFeaturedDealsByCategory.Arn}/invocations
+                            responses: {}
+                    /latest-and- featured-deals:
+                        get:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetLatestAndFeaturedDeals.Arn}/invocations
+                            responses: {}
+                    /brand-like:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetBrandLike.Arn}/invocations
+                            responses: {}
+                    /brand-watch:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetBrandWatch.Arn}/invocations
+                            responses: {}
+                    /category-like:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetCategoryLike.Arn}/invocations
+                            responses: {}
+                    /category-watch:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetCategoryWatch.Arn}/invocations
+                            responses: {}
+                    /featured-deals:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetFeaturedDeals.Arn}/invocations
+                            responses: {}
+                    /featured-deals-category:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetFeaturedDealsByCategory.Arn}/invocations
+                            responses: {}
+                    /featured-deals-editors-choice:
+                        post:
+                            x-amazon-apigateway-integration:
+                                httpMethod: POST
+                                type: aws_proxy
+                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetFeaturedDealsEditorsChoice.Arn}/invocations
+                            responses: {}

@@ -10,11 +10,13 @@ Resources:
         Type: AWS::Serverless::Application
         Properties:
             Location: src/functions/template.yaml
-    API:
-        Type: AWS::Serverless::Application
-        Properties:
-            Location: src/api/template.yaml
-    DB:
-        Type: AWS::Serverless::Application
-        Properties:
-            Location: src/db/template.yaml
+            # Parameters:
+            #     DealsApi: !Ref API.Outputs.DealsApi
+    # API:
+    #     Type: AWS::Serverless::Application
+    #     Properties:
+    #         Location: src/api/template.yaml
+    # DB:
+    #     Type: AWS::Serverless::Application
+    #     Properties:
+    #         Location: src/db/template.yaml
