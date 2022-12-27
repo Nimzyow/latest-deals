@@ -6,12 +6,8 @@ export const handler = async (
     context: Context
 ): Promise<APIGatewayProxyResult> => {
     const client = new DynamoDBClient({ region: context.invokedFunctionArn.split(":")[3] })
-    console.log(event.body)
 
     const { brand, username }: { brand: unknown; username: unknown } = JSON.parse(event.body as string)
-    console.log("****")
-    console.log(brand, username)
-    console.log("****")
     if (typeof brand !== "string" || typeof username !== "string") {
         return {
             statusCode: 400,
@@ -55,7 +51,6 @@ export const handler = async (
 
     try {
         const response = await client.send(transactWriteItems)
-        console.log(response)
         return {
             statusCode: 200,
             body: JSON.stringify(response),

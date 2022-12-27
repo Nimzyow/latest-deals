@@ -28,7 +28,6 @@ export const handler = async (
 
     try {
         const response = await client.send(getBrand)
-        console.log(response)
         return {
             statusCode: 200,
             body: JSON.stringify(response),
