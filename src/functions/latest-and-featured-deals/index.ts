@@ -5,29 +5,31 @@ export const handler = async (
     event: APIGatewayProxyEvent,
     context: Context
 ): Promise<APIGatewayProxyResult> => {
-    const brand = event.pathParameters?.brand
-
-    if (brand === undefined) {
-        return {
-            statusCode: 400,
-            body: JSON.stringify({
-                message: "brand query parameter is required",
-            }),
-        }
-    }
+    const pathParameter = event.pathParameters?.category
 
     const client = new DynamoDBClient({ region: context.invokedFunctionArn.split(":")[3] })
 
-    const getBrand = new GetItemCommand({
+    const queryFor =
+        pathParameter === undefined
+            ? "FRONTPAGE"
+            : pathParameter !== "editorschoice"
+            ? `CATEGORY#${pathParameter.toUpperCase()}`
+            : "EDITORSCHOICEPAGE"
+
+    const getDeals = new GetItemCommand({
         TableName: "Deal",
         Key: {
-            PK: { S: `BRAND#${brand.toUpperCase()}` },
-            SK: { S: `BRAND#${brand.toUpperCase()}` },
+            PK: {
+                S: queryFor,
+            },
+            SK: {
+                S: queryFor,
+            },
         },
     })
 
     try {
-        const response = await client.send(getBrand)
+        const response = await client.send(getDeals)
         console.log(response)
         return {
             statusCode: 200,

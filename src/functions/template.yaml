@@ -128,29 +128,33 @@ Resources:
                     - index.ts
                 External:
                     - "@aws-sdk/client-dynamodb"
-    # GetLatestAndFeaturedDealsByCategory:
-    #     Type: AWS::Serverless::Function
-    #     Properties:
-    #         FunctionName: !Sub ${AWS::StackName}-GetLatestAndFeaturedDealsByCategory
-    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-    #         CodeUri: src/UpdateItem
-    #         Events:
-    #             DealsApiGETLatestAndFeaturedDealsCategory:
-    #                 Type: HttpApi
-    #                 Properties:
-    #                     Path: /latest-and-featured-deals/{category}
-    #                     Method: GET
-    #                     ApiId: !Ref DealsApi
-    #     Metadata: # Manage esbuild properties
-    #         BuildMethod: esbuild
-    #         BuildProperties:
-    #             Minify: true
-    #             Target: "es2020"
-    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
-    #             EntryPoints:
-    #                 - index.ts
-    #             External:
-    #                 - "@aws-sdk/client-dynamodb"
+    GetLatestAndFeaturedDealsByCategory:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-LatestFeaturedDealsCategory
+            Description: !Sub Stack ${AWS::StackName} Function GetLatestAndFeaturedDealsByCategory
+            CodeUri: latest-and-featured-deals
+            Layers:
+                - !Ref DepsLayer
+            Policies:
+                - DynamoDBReadPolicy:
+                      TableName: Deal
+            Events:
+                APICall:
+                    Type: Api
+                    Properties:
+                        Path: /latest-and-featured-deals/{category}
+                        Method: GET
+        Metadata: # Manage esbuild properties
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: "es2020"
+                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+                EntryPoints:
+                    - index.ts
+                External:
+                    - "@aws-sdk/client-dynamodb"
     # GetLatestAndFeaturedDeals:
     #     Type: AWS::Serverless::Function
     #     Properties:

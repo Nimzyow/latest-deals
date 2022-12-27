@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "type": "aws-sam",
+            "request": "direct-invoke",
+            "name": "API functions:GetLatestAndFeaturedDealsByCategory",
+            "invokeTarget": {
+                "target": "api",
+                "templatePath": "${workspaceFolder}/src/functions/template.yaml",
+                "logicalId": "GetLatestAndFeaturedDealsByCategory"
+            },
+            "api": {
+                "path": "/",
+                "httpMethod": "get",
+                "payload": {
+                    "json": {}
+                }
+            }
+        }
+    ]
+}
