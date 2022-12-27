@@ -14,10 +14,6 @@ Globals:
         Architectures:
             - x86_64
 
-# Parameters:
-#     DealsApi:
-#         Type: String
-
 Resources:
     DepsLayer:
         Type: AWS::Serverless::LayerVersion
@@ -31,17 +27,20 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             FunctionName: !Sub ${AWS::StackName}-GetDeal
-            Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
+            Description: !Sub Stack ${AWS::StackName} Function GetDeal
             CodeUri: get-deal
             Layers:
                 - !Ref DepsLayer
+            Policies:
+                - DynamoDBReadPolicy:
+                      TableName: Deal
             Events:
-                DealsApiGETDealId:
-                    Type: HttpApi
+                APICall:
+                    Type: Api
                     Properties:
                         Path: /deal/{id}
                         Method: GET
-                        ApiId: !Ref DealsApi
+                        # ApiId: !Ref DealsApi
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
@@ -75,29 +74,31 @@ Resources:
     #                 - index.ts
     #             External:
     #                 - "@aws-sdk/client-dynamodb"
-    # GetBrands:
-    #     Type: AWS::Serverless::Function
-    #     Properties:
-    #         FunctionName: !Sub ${AWS::StackName}-GetBrands
-    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-    #         CodeUri: src/get-brands
-    #         Events:
-    #             DealsApiGETbrands:
-    #                 Type: HttpApi
-    #                 Properties:
-    #                     Path: /brands
-    #                     Method: GET
-    #                     ApiId: !Ref DealsApi
-    #     Metadata: # Manage esbuild properties
-    #         BuildMethod: esbuild
-    #         BuildProperties:
-    #             Minify: true
-    #             Target: "es2020"
-    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
-    #             EntryPoints:
-    #                 - index.ts
-    #             External:
-    #                 - "@aws-sdk/client-dynamodb"
+    GetBrands:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-GetBrands
+            Description: !Sub Stack ${AWS::StackName} Function GetBrands
+            CodeUri: get-brands
+            Layers:
+                - !Ref DepsLayer
+            Events:
+                APICall:
+                    Type: Api
+                    Properties:
+                        Path: /brands
+                        Method: GET
+                        # ApiId: !Ref DealsApi
+        Metadata: # Manage esbuild properties
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: "es2020"
+                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+                EntryPoints:
+                    - index.ts
+                External:
+                    - "@aws-sdk/client-dynamodb"
     # GetLatestAndFeaturedDealsByCategory:
     #     Type: AWS::Serverless::Function
     #     Properties:
@@ -443,102 +444,103 @@ Resources:
     #             - index.ts
     #         External:
     #             - "@aws-sdk/client-dynamodb"
-    DealsApi:
-        Type: AWS::Serverless::HttpApi
-        Properties:
-            StageName: Prod
-            DefinitionBody:
-                openapi: "3.0"
-                info: {}
-                paths:
-                    /featured-deals- editors-choice:
-                        get:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetFeaturedDealsEditorsChoice.Arn}/invocations
-                            responses: {}
-                    /brand-deals/{brand}:
-                        get:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetBrandDeals.Arn}/invocations
-                            responses: {}
-                    /deal/{id}:
-                        get:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetDeal.Arn}/invocations
-                            responses: {}
-                    /brands:
-                        get:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetBrands.Arn}/invocations
-                            responses: {}
-                    /latest-and- featured-deals/{category}:
-                        get:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetLatestAndFeaturedDealsByCategory.Arn}/invocations
-                            responses: {}
-                    /latest-and- featured-deals:
-                        get:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetLatestAndFeaturedDeals.Arn}/invocations
-                            responses: {}
-                    /brand-like:
-                        post:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetBrandLike.Arn}/invocations
-                            responses: {}
-                    /brand-watch:
-                        post:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetBrandWatch.Arn}/invocations
-                            responses: {}
-                    /category-like:
-                        post:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetCategoryLike.Arn}/invocations
-                            responses: {}
-                    /category-watch:
-                        post:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetCategoryWatch.Arn}/invocations
-                            responses: {}
-                    /featured-deals:
-                        post:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetFeaturedDeals.Arn}/invocations
-                            responses: {}
-                    /featured-deals-category:
-                        post:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetFeaturedDealsByCategory.Arn}/invocations
-                            responses: {}
-                    /featured-deals-editors-choice:
-                        post:
-                            x-amazon-apigateway-integration:
-                                httpMethod: POST
-                                type: aws_proxy
-                                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetFeaturedDealsEditorsChoice.Arn}/invocations
-                            responses: {}
+    # DealsApi:
+    #     Type: AWS::Serverless::HttpApi
+    #     Properties:
+    #         StageName: Prod
+    #         DefinitionBody:
+    #             openapi: "3.0"
+    #             info: {}
+    #             paths:
+    #                 /deal/{id}:
+    #                     get:
+    #                         x-amazon-apigateway-integration:
+    #                             httpMethod: GET
+    #                             type: aws_proxy
+    #                             uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetDeal.Arn}/invocations
+    #                         responses: {}
+
+    # /featured-deals- editors-choice:
+    #     get:
+    #         x-amazon-apigateway-integration:
+    #             httpMethod: POST
+    #             type: aws_proxy
+    #             uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetFeaturedDealsEditorsChoice.Arn}/invocations
+    #         responses: {}
+    # /brand-deals/{brand}:
+    #     get:
+    #         x-amazon-apigateway-integration:
+    #             httpMethod: POST
+    #             type: aws_proxy
+    #             uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetBrandDeals.Arn}/invocations
+    #         responses: {}
+    # /brands:
+    #     get:
+    #         x-amazon-apigateway-integration:
+    #             httpMethod: POST
+    #             type: aws_proxy
+    #             uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetBrands.Arn}/invocations
+    #         responses: {}
+    # /latest-and- featured-deals/{category}:
+    #     get:
+    #         x-amazon-apigateway-integration:
+    #             httpMethod: POST
+    #             type: aws_proxy
+    #             uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetLatestAndFeaturedDealsByCategory.Arn}/invocations
+    #         responses: {}
+    # /latest-and- featured-deals:
+    #     get:
+    #         x-amazon-apigateway-integration:
+    #             httpMethod: POST
+    #             type: aws_proxy
+    #             uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetLatestAndFeaturedDeals.Arn}/invocations
+    #         responses: {}
+    # /brand-like:
+    #     post:
+    #         x-amazon-apigateway-integration:
+    #             httpMethod: POST
+    #             type: aws_proxy
+    #             uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetBrandLike.Arn}/invocations
+    #         responses: {}
+    # /brand-watch:
+    #     post:
+    #         x-amazon-apigateway-integration:
+    #             httpMethod: POST
+    #             type: aws_proxy
+    #             uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetBrandWatch.Arn}/invocations
+    #         responses: {}
+    # /category-like:
+    #     post:
+    #         x-amazon-apigateway-integration:
+    #             httpMethod: POST
+    #             type: aws_proxy
+    #             uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetCategoryLike.Arn}/invocations
+    #         responses: {}
+    # /category-watch:
+    #     post:
+    #         x-amazon-apigateway-integration:
+    #             httpMethod: POST
+    #             type: aws_proxy
+    #             uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetCategoryWatch.Arn}/invocations
+    #         responses: {}
+    # /featured-deals:
+    #     post:
+    #         x-amazon-apigateway-integration:
+    #             httpMethod: POST
+    #             type: aws_proxy
+    #             uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetFeaturedDeals.Arn}/invocations
+    #         responses: {}
+    # /featured-deals-category:
+    #     post:
+    #         x-amazon-apigateway-integration:
+    #             httpMethod: POST
+    #             type: aws_proxy
+    #             uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetFeaturedDealsByCategory.Arn}/invocations
+    #         responses: {}
+    # /featured-deals-editors-choice:
+    #     post:
+    #         x-amazon-apigateway-integration:
+    #             httpMethod: POST
+    #             type: aws_proxy
+    #             uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetFeaturedDealsEditorsChoice.Arn}/invocations
+    #         responses: {}

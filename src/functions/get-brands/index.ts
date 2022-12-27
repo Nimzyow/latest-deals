@@ -5,7 +5,7 @@ export const handler = async (
     event: APIGatewayProxyEvent,
     context: Context
 ): Promise<APIGatewayProxyResult> => {
-    const dealId = event.pathParameters?.id
+    const dealId = event.queryStringParameters?.name
 
     if (dealId === undefined) {
         return {
@@ -27,8 +27,7 @@ export const handler = async (
     })
 
     try {
-        const response = await client.send(getDeal)
-        console.log(response)
+        const response = client.send(getDeal)
         return {
             statusCode: 200,
             body: JSON.stringify(response),
