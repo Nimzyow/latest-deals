@@ -3,6 +3,23 @@
         {
             "type": "aws-sam",
             "request": "direct-invoke",
+            "name": "API functions:SetBrandLike",
+            "invokeTarget": {
+                "target": "api",
+                "templatePath": "${workspaceFolder}/src/functions/template.yaml",
+                "logicalId": "SetBrandLike"
+            },
+            "api": {
+                "path": "/",
+                "httpMethod": "get",
+                "payload": {
+                    "json": {}
+                }
+            }
+        },
+        {
+            "type": "aws-sam",
+            "request": "direct-invoke",
             "name": "API functions:GetLatestAndFeaturedDealsByCategory",
             "invokeTarget": {
                 "target": "api",
