@@ -1,29 +1,44 @@
 import { APIGatewayProxyResult, APIGatewayProxyEvent, Context } from "aws-lambda"
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb"
+import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb"
 
 export const lambdaHandler = async (
     event: APIGatewayProxyEvent,
     context: Context
 ): Promise<APIGatewayProxyResult> => {
-    const client = new DynamoDBClient({ region: context.invokedFunctionArn.split(":")[3] })
+    const dealId = event.queryStringParameters?.name
 
-    let response: APIGatewayProxyResult
-    try {
-        response = {
-            statusCode: 200,
+    if (dealId === undefined) {
+        return {
+            statusCode: 400,
             body: JSON.stringify({
-                message: "hello world!!!!!!!!",
-            }),
-        }
-    } catch (err: unknown) {
-        console.log(err)
-        response = {
-            statusCode: 500,
-            body: JSON.stringify({
-                message: err instanceof Error ? err.message : "some error happened",
+                message: "name query parameter is required",
             }),
         }
     }
 
-    return response
+    const client = new DynamoDBClient({ region: context.invokedFunctionArn.split(":")[3] })
+
+    const getDeal = new GetItemCommand({
+        TableName: "DealsApp",
+        Key: {
+            PK: { S: `DEAL#${dealId}` },
+            SK: { S: `DEAL#${dealId}` },
+        },
+    })
+
+    try {
+        const response = client.send(getDeal)
+        return {
+            statusCode: 200,
+            body: JSON.stringify(response),
+        }
+    } catch (error) {
+        console.log(error)
+        return {
+            statusCode: 500,
+            body: JSON.stringify({
+                message: "some error happened",
+            }),
+        }
+    }
 }
