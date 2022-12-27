@@ -91,7 +91,33 @@ Resources:
                     Properties:
                         Path: /brands
                         Method: GET
-                        # ApiId: !Ref DealsApi
+        Metadata: # Manage esbuild properties
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: "es2020"
+                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+                EntryPoints:
+                    - index.ts
+                External:
+                    - "@aws-sdk/client-dynamodb"
+    GetBrand:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-GetBrand
+            Description: !Sub Stack ${AWS::StackName} Function GetBrand
+            CodeUri: get-brand
+            Layers:
+                - !Ref DepsLayer
+            Policies:
+                - DynamoDBReadPolicy:
+                      TableName: Deal
+            Events:
+                APICall:
+                    Type: Api
+                    Properties:
+                        Path: /brand/{brand}
+                        Method: GET
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
