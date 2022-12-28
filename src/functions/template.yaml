@@ -205,29 +205,33 @@ Resources:
     #                 - index.ts
     #             External:
     #                 - "@aws-sdk/client-dynamodb"
-    # SetCategoryLike:
-    #     Type: AWS::Serverless::Function
-    #     Properties:
-    #         FunctionName: !Sub ${AWS::StackName}-SetCategoryLike
-    #         Description: !Sub Stack ${AWS::StackName} Function ${ResourceName}
-    #         CodeUri: src/set-category-like
-    #         Events:
-    #             DealsApiPOSTcategorylike:
-    #                 Type: HttpApi
-    #                 Properties:
-    #                     Path: /category-like
-    #                     Method: POST
-    #                     ApiId: !Ref DealsApi
-    #     Metadata: # Manage esbuild properties
-    #         BuildMethod: esbuild
-    #         BuildProperties:
-    #             Minify: true
-    #             Target: "es2020"
-    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
-    #             EntryPoints:
-    #                 - index.ts
-    #             External:
-    #                 - "@aws-sdk/client-dynamodb"
+    SetCategoryLike:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-SetCategoryLike
+            Description: !Sub Stack ${AWS::StackName} Function SetCategoryLike
+            CodeUri: set-category-like
+            Layers:
+                - !Ref DepsLayer
+            Policies:
+                - DynamoDBWritePolicy:
+                      TableName: Deal
+            Events:
+                APICall:
+                    Type: Api
+                    Properties:
+                        Path: /set-category-like
+                        Method: POST
+        Metadata: # Manage esbuild properties
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: "es2020"
+                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+                EntryPoints:
+                    - index.ts
+                External:
+                    - "@aws-sdk/client-dynamodb"
     # SetCategoryWatch:
     #     Type: AWS::Serverless::Function
     #     Properties:
