@@ -128,6 +128,33 @@ Resources:
                     - index.ts
                 External:
                     - "@aws-sdk/client-dynamodb"
+    GetUser:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-GetUser
+            Description: !Sub Stack ${AWS::StackName} Function GetUser
+            CodeUri: get-user
+            Layers:
+                - !Ref DepsLayer
+            Policies:
+                - DynamoDBReadPolicy:
+                      TableName: Deal
+            Events:
+                APICall:
+                    Type: Api
+                    Properties:
+                        Path: /user/{user}
+                        Method: GET
+        Metadata: # Manage esbuild properties
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: "es2020"
+                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+                EntryPoints:
+                    - index.ts
+                External:
+                    - "@aws-sdk/client-dynamodb"
     GetLatestAndFeaturedDealsByCategory:
         Type: AWS::Serverless::Function
         Properties:
