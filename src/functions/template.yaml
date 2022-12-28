@@ -236,6 +236,33 @@ Resources:
                     - index.ts
                 External:
                     - "@aws-sdk/client-dynamodb"
+    GetLatestCategoryDeals:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-GetLatestCategoryDeals
+            Description: !Sub Stack ${AWS::StackName} Function GetLatestCategoryDeals
+            CodeUri: get-latest-category-deals
+            Layers:
+                - !Ref DepsLayer
+            Policies:
+                - DynamoDBReadPolicy:
+                      TableName: Deal
+            Events:
+                APICall:
+                    Type: Api
+                    Properties:
+                        Path: /get-latest-category-deals/{category}
+                        Method: GET
+        Metadata: # Manage esbuild properties
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: "es2020"
+                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+                EntryPoints:
+                    - index.ts
+                External:
+                    - "@aws-sdk/client-dynamodb"
     SetBrandLike:
         Type: AWS::Serverless::Function
         Properties:
