@@ -1,0 +1,14 @@
+{
+    "name": "a_lambda",
+    "version": "1.0.0",
+    "description": "Lambda",
+    "author": "Ripple",
+    "license": "MIT",
+    "dependencies": {
+        "esbuild": "^0.14.14",
+        "ksuid": "^3.0.0"
+    },
+    "devDependencies": {
+        "@types/aws-lambda": "^8.10.92"
+    }
+}
