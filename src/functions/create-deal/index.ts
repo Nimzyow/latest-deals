@@ -40,7 +40,7 @@ export const handler = async (
         Item: {
             PK: { S: `DEAL#${ksuid.string}` },
             SK: { S: `DEAL#${ksuid.string}` },
-            Entity: { S: "Deal" },
+            Entity: { S: "DEAL" },
             Title: { S: title.charAt(0).toUpperCase() + title.slice(1) },
             Link: { S: link },
             Price: { S: price.toString() },

@@ -6,46 +6,49 @@ export const handler = async (
     context: Context
 ): Promise<APIGatewayProxyResult> => {
     const client = new DynamoDBClient({ region: context.invokedFunctionArn.split(":")[3] })
-
-    const { category, username }: { category: unknown; username: unknown } = JSON.parse(
+    const { brandLogoUrl, brandName }: { brandName: unknown; brandLogoUrl: unknown } = JSON.parse(
         event.body as string
     )
-    if (typeof category !== "string" || typeof username !== "string") {
+    if (typeof brandName !== "string" || typeof brandLogoUrl !== "string") {
         return {
             statusCode: 400,
             body: JSON.stringify({
-                message: "category and username is required",
+                message: "incorrect inputs",
             }),
         }
     }
 
-    const transactWriteItems = new TransactWriteItemsCommand({
+    const createBrand = new TransactWriteItemsCommand({
         TransactItems: [
             {
                 Put: {
                     TableName: "Deal",
                     Item: {
-                        PK: { S: `CATEGORY#${category.toUpperCase()}#${username}` },
-                        SK: { S: `CATEGORY#${category.toUpperCase()}#${username}` },
+                        PK: { S: `BRAND#${brandName.toUpperCase()}` },
+                        SK: { S: `BRAND#${brandName.toUpperCase()}` },
+                        Entity: { S: "Brand" },
+                        Brand: {
+                            S: brandName.charAt(0).toUpperCase() + brandName.slice(1),
+                        },
+                        BrandLogoUrl: { S: brandLogoUrl },
+                        Likes: { N: "0" },
+                        Watches: { N: "0" },
                     },
-                    ConditionExpression: "attribute_not_exists(PK)",
                 },
             },
             {
                 Update: {
                     TableName: "Deal",
                     Key: {
-                        PK: { S: `CATEGORY#${category.toUpperCase()}` },
-                        SK: { S: `CATEGORY#${category.toUpperCase()}` },
+                        PK: { S: "BRANDS" },
+                        SK: { S: "BRANDS" },
                     },
-                    ConditionExpression: "attribute_exists(PK)",
-                    UpdateExpression: "SET #likes = if_not_exists(#likes, :zero) + :increment",
+                    UpdateExpression: "ADD #brands :brand",
                     ExpressionAttributeNames: {
-                        "#likes": "Likes",
+                        "#brands": "Brands",
                     },
                     ExpressionAttributeValues: {
-                        ":increment": { N: "1" },
-                        ":zero": { N: "0" },
+                        ":brand": { SS: [brandName.charAt(0).toUpperCase() + brandName.slice(1)] },
                     },
                 },
             },
@@ -53,7 +56,7 @@ export const handler = async (
     })
 
     try {
-        const response = await client.send(transactWriteItems)
+        const response = await client.send(createBrand)
         return {
             statusCode: 200,
             body: JSON.stringify(response),

@@ -5,11 +5,18 @@ Description: >
 
     Sample SAM Template for deals-app
 
+Parameters:
+    UserPoolArn:
+        Type: String
+        Description: Cognito Identity Pool Id
+
 Resources:
     Functions:
         Type: AWS::Serverless::Application
         Properties:
             Location: src/functions/template.yaml
+            Parameters:
+                UserPoolArn: !Ref UserPoolArn
     DB:
         Type: AWS::Serverless::Application
         Properties:

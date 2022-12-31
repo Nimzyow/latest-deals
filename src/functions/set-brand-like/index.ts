@@ -37,12 +37,13 @@ export const handler = async (
                         SK: { S: `BRAND#${brand.toUpperCase()}` },
                     },
                     ConditionExpression: "attribute_exists(PK)",
-                    UpdateExpression: "SET #likes = #likes + :increment",
+                    UpdateExpression: "SET #likes = if_not_exists(#likes, :zero) + :increment",
                     ExpressionAttributeNames: {
                         "#likes": "Likes",
                     },
                     ExpressionAttributeValues: {
                         ":increment": { N: "1" },
+                        ":zero": { N: "0" },
                     },
                 },
             },
