@@ -45,13 +45,12 @@ Resources:
                     Properties:
                         Path: /deal/{id}
                         Method: GET
-                        # ApiId: !Ref DealsApi
+                        RestApiId: !Ref RestApi
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
                 Minify: true
                 Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
                 EntryPoints:
                     - index.ts
                 External:
@@ -74,7 +73,6 @@ Resources:
     #         BuildProperties:
     #             Minify: true
     #             Target: "es2020"
-    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
     #             EntryPoints:
     #                 - index.ts
     #             External:
@@ -97,14 +95,11 @@ Resources:
                         Path: /brands
                         Method: GET
                         RestApiId: !Ref RestApi
-                        # RequestParameters:
-                        #     - method.request.header.Authorization
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
                 Minify: true
                 Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
                 EntryPoints:
                     - index.ts
                 External:
@@ -126,12 +121,12 @@ Resources:
                     Properties:
                         Path: /brand/{brand}
                         Method: GET
+                        RestApiId: !Ref RestApi
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
                 Minify: true
                 Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
                 EntryPoints:
                     - index.ts
                 External:
@@ -153,12 +148,12 @@ Resources:
                     Properties:
                         Path: /user/{user}
                         Method: GET
+                        RestApiId: !Ref RestApi
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
                 Minify: true
                 Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
                 EntryPoints:
                     - index.ts
                 External:
@@ -180,12 +175,12 @@ Resources:
                     Properties:
                         Path: /latest-and-featured-deals/{category}
                         Method: GET
+                        RestApiId: !Ref RestApi
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
                 Minify: true
                 Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
                 EntryPoints:
                     - index.ts
                 External:
@@ -207,12 +202,12 @@ Resources:
                     Properties:
                         Path: /get-latest-deals
                         Method: GET
+                        RestApiId: !Ref RestApi
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
                 Minify: true
                 Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
                 EntryPoints:
                     - index.ts
                 External:
@@ -234,12 +229,12 @@ Resources:
                     Properties:
                         Path: /get-latest-brand-deals/{brand}
                         Method: GET
+                        RestApiId: !Ref RestApi
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
                 Minify: true
                 Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
                 EntryPoints:
                     - index.ts
                 External:
@@ -261,12 +256,12 @@ Resources:
                     Properties:
                         Path: /get-latest-category-deals/{category}
                         Method: GET
+                        RestApiId: !Ref RestApi
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
                 Minify: true
                 Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
                 EntryPoints:
                     - index.ts
                 External:
@@ -288,12 +283,12 @@ Resources:
                     Properties:
                         Path: /set-brand-like
                         Method: POST
+                        RestApiId: !Ref RestApi
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
                 Minify: true
                 Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
                 EntryPoints:
                     - index.ts
                 External:
@@ -315,12 +310,12 @@ Resources:
                     Properties:
                         Path: /create-deal
                         Method: POST
+                        RestApiId: !Ref RestApi
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
                 Minify: true
                 Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
                 EntryPoints:
                     - index.ts
                 External:
@@ -342,12 +337,32 @@ Resources:
                     Properties:
                         Path: /create-brand
                         Method: POST
+                        RestApiId: !Ref RestApi
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
                 Minify: true
                 Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
+                EntryPoints:
+                    - index.ts
+                External:
+                    - "@aws-sdk/client-dynamodb"
+    CreateUser:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: !Sub ${AWS::StackName}-CreateUser
+            Description: !Sub Stack ${AWS::StackName} Function CreateUser
+            CodeUri: create-user
+            Layers:
+                - !Ref DepsLayer
+            Policies:
+                - DynamoDBWritePolicy:
+                      TableName: Deal
+        Metadata: # Manage esbuild properties
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: "es2020"
                 EntryPoints:
                     - index.ts
                 External:
@@ -369,12 +384,12 @@ Resources:
                     Properties:
                         Path: /set-brand-watch
                         Method: POST
+                        RestApiId: !Ref RestApi
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
                 Minify: true
                 Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
                 EntryPoints:
                     - index.ts
                 External:
@@ -396,12 +411,12 @@ Resources:
                     Properties:
                         Path: /set-category-like
                         Method: POST
+                        RestApiId: !Ref RestApi
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
                 Minify: true
                 Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
                 EntryPoints:
                     - index.ts
                 External:
@@ -423,12 +438,12 @@ Resources:
                     Properties:
                         Path: /set-category-watch
                         Method: POST
+                        RestApiId: !Ref RestApi
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
                 Minify: true
                 Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
                 EntryPoints:
                     - index.ts
                 External:
@@ -451,7 +466,6 @@ Resources:
     #         BuildProperties:
     #             Minify: true
     #             Target: "es2020"
-    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
     #             EntryPoints:
     #                 - index.ts
     #             External:
@@ -474,7 +488,6 @@ Resources:
     #         BuildProperties:
     #             Minify: true
     #             Target: "es2020"
-    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
     #             EntryPoints:
     #                 - index.ts
     #             External:
@@ -497,7 +510,6 @@ Resources:
     #         BuildProperties:
     #             Minify: true
     #             Target: "es2020"
-    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
     #             EntryPoints:
     #                 - index.ts
     #             External:
@@ -519,12 +531,12 @@ Resources:
                     Properties:
                         Path: /messages/{username}
                         Method: GET
+                        RestApiId: !Ref RestApi
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
                 Minify: true
                 Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
                 EntryPoints:
                     - index.ts
                 External:
@@ -546,12 +558,12 @@ Resources:
                     Properties:
                         Path: /unread-messages/{username}
                         Method: GET
+                        RestApiId: !Ref RestApi
         Metadata: # Manage esbuild properties
             BuildMethod: esbuild
             BuildProperties:
                 Minify: true
                 Target: "es2020"
-                # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
                 EntryPoints:
                     - index.ts
                 External:
@@ -585,7 +597,6 @@ Resources:
     #         BuildProperties:
     #             Minify: true
     #             Target: "es2020"
-    #             # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
     #             EntryPoints:
     #                 - index.ts
     #             External:
@@ -608,7 +619,6 @@ Resources:
     #     BuildProperties:
     #         Minify: true
     #         Target: "es2020"
-    #         # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
     #         EntryPoints:
     #             - index.ts
     #         External:
@@ -631,7 +641,6 @@ Resources:
     #     BuildProperties:
     #         Minify: true
     #         Target: "es2020"
-    #         # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
     #         EntryPoints:
     #             - index.ts
     #         External:
@@ -654,7 +663,6 @@ Resources:
     #     BuildProperties:
     #         Minify: true
     #         Target: "es2020"
-    #         # Sourcemap: true # Enabling source maps will create the required NODE_OPTIONS environment variables on your lambda function during sam build
     #         EntryPoints:
     #             - index.ts
     #         External:
