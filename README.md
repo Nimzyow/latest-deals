@@ -17,5 +17,4 @@ At it's core, this is a very simple: API Gateway -> Lambda -> DynamoDB . However
 # TODO
 
 1. create the rest of the set functions for an admin to be able to create new deals, for example.
-2. Set up Cognito authentication to all gateway methods
-3. Allow only admin users to call certain methods
+2. Allow only admin users to call certain methods
