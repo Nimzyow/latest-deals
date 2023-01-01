@@ -13,8 +13,3 @@ Since a method of learning a new API is through repetition, I decided to create 
 This gave me plenty of practice with the DynamoDB API, API Gateway, Lambda and SAM.
 
 At it's core, this is a very simple: API Gateway -> Lambda -> DynamoDB . However, I didn't want to model a simple DynamoDB table that stored a simple key value pair. I wanted real complexity to demonstrate how one can create one to many and many to many relations in DynamoDB. Overall, it was very fun to model this out and at times, felt like a computer game.
-
-# TODO
-
-1. create the rest of the set functions for an admin to be able to create new deals, for example.
-2. Allow only admin users to call certain methods
